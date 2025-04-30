@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "devops-challenge-base"
+version = "0.1.0"
+description = ""
+authors = ["Denis Blanchette <dblanchette@coveo.com>"]
+
+[tool.poetry.dependencies]
+python = ">=3.8"
+boto3 = "~1"
+boto3-stubs = { extras = ["s3"], version = "~1" }
+typer = "~0.15"
+pytz = "~2025"
+tabulate = "~0.9.0"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

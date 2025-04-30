@@ -1,23 +1,19 @@
 # Coveo DevOps Challenge
 
-## The Challenge
+## The challenge
 
-Your challenge, should you choose to accept it, is to develop an AWS S3 storage analysis tool. To test your tool, you will have to create a free [Amazon](http://aws.amazon.com/en/free/) account (if you don't already have one).
+One of your colleagues has started a project to analyze the files from an S3 bucket, output some information about them,
+and calculate the cost of the storage. The project is not finished and he had to leave for personal reasons.
+Your manager is asking you to finish the project and make it production-ready.
 
 ## Specifications
 
 The tool is a shell command line utility that returns information over all [S3](https://aws.amazon.com/documentation/s3/) buckets in an Amazon account.
 
-- Your tool must work on Linux, OSX and Windows.
+- The tool must work on Linux, OSX and Windows.
 - It must be easy to install and use.
-- Ideally, your tool won't require installation of any other tools / libraries / frameworks to work.
+- Ideally, the tool won't require installation of any other tools / libraries / frameworks to work.
 - Time is money, we cannot afford running a tool that takes hours to complete, your solution should return results within seconds (or minutes if you are willing to test our patience :-).
-
-## Time allowed
-
-People who have successfully passed the challenge and are now happy members of the Coveo team usually took from 4 to 10 hours to complete it.
-
-Remember the KISS principle...
 
 ### The tool must return the following information
 
@@ -29,36 +25,54 @@ For each bucket:
 - Last modified date of the most recent file
 - And the most important of all, **how much does it cost**
 
-### The following options should be supported
+Your colleague has started the task and was well on his way to achieve the above with the code you will find in this branch.
+**Although the code already runs, there are some TODO's left in the code for you to complete.**
 
-- Display
-  - Ability to get the size results in bytes, kB, MB, ...
-  - Ability to group buckets by [regions](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html)
+## To prepare for your interview:
 
-- Filters
-  - By bucket name
-  - By [storage type](https://docs.aws.amazon.com/AmazonS3/latest/dev/storage-class-intro.html) (Standard, IA, RR). You may provide stats on the objects in the buckets (how many have which storage type) and/or add a filter on storage type (the bucket data would only reflect the objects that have the chosen storage type).
+- Make sure you can run the code and understand what's going on in the code.
+- Review the code and take notes on stuff you would improve or change. Assume this code is about to be in production
+and that you have to plan the next few releases. Having an agile process in mind, what would you change in the first release, second
+release, etc. This will help us focus our discussion on what's important first.
+- Make sure you have addressed all the TODO's that were left in the code.
+- Make sure to have a setup that allows you to hit a breakpoint and debug in a step-by-step manner. It doesn't matter which
+application you use to do it, but make sure you're comfortable debugging in the environment you choose before the interview,
+because bugs there will be 😉.
+- Have an editor or IDE ready to code during the interview.
+- Have Git installed.
 
-### Some additional features that could be useful (optional)
+Your colleague who started this didn't follow our normal standards, so you should have something to say about that code.
+If you want to go the extra mile, you can improve on his work ahead of the interview, but being able to comment on what
+you think is wrong and why you think it could be improved is more important than actually fixing any of it.
+We are not looking for a perfect solution, we are more interested in your thought process and how you would approach
+the problem.
 
-It would be nice to:
-- Support prefixes, glob and/or regexes in the bucket filter (e.g.: s3://mybucket/Folder/SubFolder/log*).
-- Organize the results according to the [encryption type](https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingEncryption.html)
-- Get additional buckets information (life cycle, cross-region replication, etc.)
-- Take into account the [previous file versions](https://docs.aws.amazon.com/AmazonS3/latest/UG/enable-bucket-versioning.html) in the count + size calculation.
+We expect you to understand the whole project a minimum and have an opinion on it. We understand that you may not be 100%
+familiar with AWS. It's normal and we don't expect you to learn everything before the interview.
 
-Some statistics to check the percentage of space used by a bucket, or any other good ideas you could have, are more than welcome.
+## Running it
 
-## Rules
+1. First you'll need to create an AWS account. One can be created for free.
+2. Create an S3 bucket and upload some files into it. Bear in mind that there can be a charge if you go over the
+[free tier requirements](https://aws.amazon.com/free/?all-free-tier.sort-by=item.additionalFields.SortRank&all-free-tier.sort-order=asc&awsf.Free%20Tier%20Types=*all&awsf.Free%20Tier%20Categories=*all&all-free-tier.q=S3&all-free-tier.q_operator=AND)
+(5 GiB at time of writing).
+3. To run the project itself, you'll need Python 3.8 or more recent and [Poetry](https://python-poetry.org/docs/#installation)
+4. Run `poetry install`
+5. Run `poetry run python ./main.py`
 
-- Your are free to use the programming language and the [SDK](https://aws.amazon.com/tools/) of your choice, but remember that installation must not require us to install external tools in order to test the result of your work.
-- We will test your work in our environment (which contains **several millions of files**). The overall performance of your tool will be evaluated. Most of the projects we receive take weeks to run in our environment, can you do better?
-- Your code must be made available on GitHub or any other public version control software. Your project must be a standalone project (i.e. **do not fork it from our challenge or any other project**).
+## During the technical interview
 
-## Advice
+Be prepared for a peer review during your technical interview. Also expect some additional challenges as we may ask you
+to run your program in a different environment with a significant number of files.
 
-- **Try to design and implement your solution as you would do for real production code**. Show us how you create clean, maintainable code that does awesome stuff. Build something that we'd be happy to contribute to. This is not a programming contest where dirty hacks win the game.
-- Feel free to add more features! Really, we're curious about what you can think of. We'd expect the same if you worked with us.
-- Documentation and maintainability is a plus.
-- Don't you forget those unit tests.
-- We don’t want to know if you can do exactly as asked (or everybody would have the same result). We want to know what **you** bring to the table when working on a project, what is your secret sauce. More features? Best solution? Thinking outside the box?
+## Final advice
+
+Make sure you have fun while performing this challenge. It is very rare that candidates grasp the extent of the pitfalls to
+avoid and all the technical challenges involved. We are not looking for perfection, but you will be evaluated on your ability
+to adapt when we face the various problems that you will inevitably be confronted.
+
+During the interview, treat the interviewers as colleagues. Feel free to ask for help as you would normally do in the course
+of your job. They are there to help you, not to trick you. Their main objective is to find in you their future colleague with
+whom they will enjoy working.
+
+See you soon.
