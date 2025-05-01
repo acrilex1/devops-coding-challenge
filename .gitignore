@@ -1,0 +1,15 @@
+.DS_Store
+.idea
+*.pyc
+.eggs
+*.egg-info
+.coverage
+.pytest_cache
+.vscode
+.mypy_cache
+dist/*
+.ci/
+.run/
+*.xml
+*.iml
+*.log
