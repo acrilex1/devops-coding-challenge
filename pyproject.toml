@@ -3,17 +3,55 @@ name = "devops-challenge-base"
 version = "0.1.0"
 description = ""
 authors = ["Denis Blanchette <dblanchette@coveo.com>"]
+package-mode = false
 
 [tool.poetry.dependencies]
-python = ">=3.8"
-boto3 = "~1"
-boto3-stubs = { extras = ["s3"], version = "~1" }
-typer = "~0.15"
-pytz = "~2025"
-tabulate = "~0.9.0"
+python = "^3.13"
+boto3 = "^1.38.23"
+boto3-stubs = { extras = ["s3", "pricing"], version = "^1.38.23" }
+aioboto3 = "^15.0.0"
+typer = "^0.15.0"
+python-dateutil = "^2.9.0"
+tabulate = "^0.9.0"
+python-dotenv = "^1.0.0"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.0"
+pytest-asyncio = "^0.25.0"
+pytest-cov = "^6.0.0"
+black = "^24.10.0"
+debugpy = "^1.8.14"
+mypy = "^1.13.0"
+ruff = "^0.8.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+asyncio_mode = "auto"
+addopts = "--strict-markers --strict-config"
+markers = [
+    "unit: Unit tests",
+    "e2e: End-to-end tests",
+    "slow: Slow tests"
+]
+
+[tool.coverage.run]
+source = ["."]
+omit = [
+    "tests/*",
+    ".*",
+    "*/site-packages/*",
+    ".venv/*"
+]
+
+[tool.mypy]
+python_version = "3.13"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
