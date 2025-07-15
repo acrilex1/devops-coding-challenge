@@ -15,7 +15,7 @@ L’outil doit se présenter sous forme d’une commande shell qui permet d’ob
 - Idéalement, l'outil ne devrait pas nécessiter l'installation de libraries et / ou outils externes pour être fonctionnel.
 - Le temps est de l'argent, nous ne pouvons pas attendre des heures pour obtenir des résultats. La solution devrait nous retourner des réponses en quelques secondes (ou en quelques minutes si vous tenez à tester notre patience :-).
 
-### L’outil doit permettre d’obtenir les informations suivantes:
+### Configuration d'environnement
 
 Pour chaque bucket:
   - Nom
@@ -73,3 +73,169 @@ auxquels vous pourriez être confronté.
 Pendant l'entretien, traitez les interviewers comme des collègues. N'hésitez pas à demander de l'aide comme vous le feriez
 normalement dans le cadre de votre travail. Ils sont là pour vous aider, pas pour vous piéger, et nous voulons que vous réussissiez.
 Leur principal objectif est de trouver en vous un futur collègue avec qui ils apprécieront travailler.
+
+## Notice sur l'utilisation de l'IA générative (GitHub Copilot)
+
+GitHub Copilot a été utilisé dans le cadre du processus de réalisation de cette évaluation. Néanmoins, des recherches approfondies et des révisions manuelles ont été effectuées pour obtenir un résultat optimal et respecter la portée du travail. Dans le paysage actuel du développement logiciel, les compétences d'un bon ingénieur comprennent désormais la capacité à utiliser correctement les Modèles de Langage de Grande Taille (LLM) en mode agent. GitHub Copilot et d'autres outils d'IA similaires sont devenus des multiplicateurs de productivité essentiels qui permettent aux développeurs de se concentrer sur l'architecture de haut niveau, la résolution de problèmes et la qualité du code, tout en automatisant les tâches répétitives et en fournissant des suggestions de code intelligentes.
+
+## Nouvelles fonctionnalités et améliorations
+
+Cette version améliorée inclut les améliorations suivantes:
+
+### Docker Compose avec LocalStack
+
+Pour le développement local et les tests sans frais AWS:
+
+1. Copiez le modèle d'environnement: `cp .env.template .env`
+2. Démarrez LocalStack: `docker compose up -d`
+3. Exécutez le script: `poetry run python -m src.main`
+4. Arrêtez LocalStack: `docker compose down`
+
+### Fonctionnalités améliorées
+
+- **Opérations Async**: Utilise aioboto3 pour une performance améliorée avec un grand nombre de buckets
+- **Pagination Appropriée**: Gère efficacement les buckets avec des millions d'objets
+- **Calcul des Coûts**: 
+  - Tarification en temps réel depuis l'API AWS Pricing
+  - Coûts mensuels estimés basés sur le stockage actuel
+- **Limitation de Débit**: Mode de retry adaptatif avec tentatives maximales configurables
+- **Gestion d'Erreurs**: Gestion gracieuse de divers scénarios d'erreur AWS
+- **Tests Complets**: Tests unitaires et tests e2e
+
+### Améliorations futures/limitations
+- Les coûts réels pourraient être évalués avec Cost Explorer, ce qui serait moins cher et plus fiable que l'énumération d'objets, incluant des paramètres tels que les coûts d'appels API.
+- Ceci assume les prix de liste, ne tient pas compte des Accords de Tarification Privés
+
+### Considérations de coût et performance
+
+**Coûts API Par Opération:**
+- Lister les buckets: ~$0.005 par 1,000 opérations de bucket
+- Lister les objets: ~$0.0004 par 1,000 requêtes
+- API Pricing: Niveau gratuit disponible
+
+**Exemples de coûts:**
+- 1M d'objets sur 10 buckets: ~$400 en opérations LIST
+- 1,000 buckets dans le compte: ~$5 en listage de buckets
+
+**Performance:**
+- Petits buckets (<1K objets): Secondes
+- Grands buckets (>1M objets): Minutes
+- Multiples grands buckets: Peut prendre des heures
+- Utilise un listage récursif par préfixe avec profondeur configurable pour une performance optimale sur les structures hiérarchiques
+
+⚠️ **ATTENTION**: Exécuter contre tous les buckets dans un compte avec de nombreux grands buckets peut entraîner des coûts API significatifs. Toujours tester avec des buckets spécifiques d'abord.
+
+## Instructions d'usage
+
+### Exécution du script (depuis la racine du dépôt)
+
+```bash
+# Analyser tous les buckets
+poetry run python -m src.main
+
+# Analyser un bucket spécifique
+poetry run python -m src.main mon-nom-de-bucket
+
+# Format de sortie JSON
+poetry run python -m src.main mon-nom-de-bucket --json
+
+# Utilisation avec Docker Compose (LocalStack)
+docker compose up -d
+poetry run python -m src.main
+docker compose down
+```
+
+### Variables de configuration
+
+Configurez les identifiants AWS et paramètres dans `.env`:
+
+```bash
+# Copiez le modèle et éditez
+cp .env.template .env
+# Éditez .env avec vos identifiants AWS
+```
+
+#### Variables de configuration de performance
+
+- `MAX_CONCURRENT_BUCKETS`: Limite le traitement concurrent des buckets (optionnel, aucune limite par défaut)
+- `MAX_RECURSION_DEPTH`: Contrôle la profondeur de listage récursif par préfixe (défaut: 4)
+  - Des valeurs plus élevées améliorent l'efficacité pour les structures de dossiers profondément imbriquées
+  - Des valeurs plus faibles réduisent l'utilisation mémoire et préviennent le débordement de pile pour les structures extrêmement profondes
+  - À la profondeur maximale, bascule vers un listage à plat sans préfixes
+- `S3_PREFIX_DELIMITER`: Caractère utilisé comme séparateur de répertoire dans les clés d'objets S3 (défaut: "/")
+  - Alternatives courantes: "-", "_", "|" pour différentes conventions de nommage
+
+### Tests
+
+```bash
+# Installer les dépendances
+poetry install
+
+# Exécuter les tests unitaires
+poetry run pytest tests/unit/ -v --cov
+
+# Exécuter les tests e2e (nécessite LocalStack ou AWS)
+docker compose up -d  # Pour LocalStack
+poetry run pytest tests/e2e/ -v
+
+# Exécuter tous les tests
+poetry run pytest -v
+```
+
+### Débogage des tests E2E
+
+Pour déboguer les tests E2E, vous pouvez utiliser le débogueur `debugpy` en définissant la variable d'environnement `E2E_DEBUG=1` :
+
+```bash
+# Exécuter les tests E2E avec le débogueur
+E2E_DEBUG=1 poetry run pytest tests/e2e/test_e2e.py::TestE2ECliOutput::test_cli_with_specific_bucket -s
+
+# Déboguer un cas de test spécifique
+E2E_DEBUG=1 poetry run pytest tests/e2e/test_e2e.py::TestE2ECliOutput::test_cli_with_nonexistent_bucket -s
+```
+
+## Permissions AWS IAM requises
+
+Pour une fonctionnalité complète, les identifiants AWS nécessitent ces permissions:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:ListAllMyBuckets",
+        "s3:ListBucket",
+        "s3:GetBucketLocation"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "pricing:GetProducts"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+```
+
+Note: Si un seul bucket doit être listé, les permissions peuvent être réduites en conséquence.
+
+## GitHub Actions
+
+Deux workflows sont inclus:
+
+1. **Tests**: S'exécute sur push/PR avec LocalStack
+2. **Exécution contre S3 réel**: Workflow manuel pour tester contre AWS réel (nécessite configuration des secrets)
+
+## Outillage de sécurité
+
+Ce répertoire utilise les fonctionnalités GitHub Advanced Security:
+- **CodeQL**: Analyse de sécurité automatisée
+- **Dependabot**: Surveillance des vulnérabilités des dépendances  
+- **Secret Scanning**: Prévient l'exposition des identifiants
+
+Ces outils démontrent les pratiques DevSecOps modernes pour le développement logiciel sécurisé.

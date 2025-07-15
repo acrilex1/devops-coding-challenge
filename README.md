@@ -76,3 +76,171 @@ of your job. They are there to help you, not to trick you. Their main objective 
 whom they will enjoy working.
 
 See you soon.
+
+## Notice on Generative AI Use (GitHub Copilot)
+
+GitHub Copilot was used as part of the process of completing this assessment. Regardless, extensive research and manual review were conducted to achieve an optimal result and to respect the scope of work. In today's software development landscape, a good engineer's skills now include being able to properly use Large Language Models (LLMs) in agent mode. GitHub Copilot and similar AI tools have become essential productivity multipliers that enable developers to focus on higher-level architecture, problem-solving, and code quality while automating repetitive tasks and providing intelligent code suggestions.
+
+## Usage Instructions
+
+### Running the Script (from repo root)
+
+```bash
+# Analyze all buckets
+poetry run python -m src.main
+
+# Analyze specific bucket
+poetry run python -m src.main my-bucket-name
+
+# JSON output format
+poetry run python -m src.main my-bucket-name --json
+
+# Using Docker Compose (LocalStack)
+docker compose up -d
+poetry run python -m src.main
+docker compose down
+```
+
+## New Features and Improvements
+
+This enhanced version includes the following improvements:
+
+### Docker Compose with LocalStack
+
+For local development and testing without AWS costs:
+
+1. Copy the environment template: `cp .env.template .env`
+2. Start LocalStack: `docker compose up -d`
+3. Run the script: `poetry run python -m src.main`
+4. Stop LocalStack: `docker compose down`
+
+### Enhanced Features
+
+- **Async Operations**: Uses aioboto3 for improved performance with large numbers of buckets
+- **Proper Pagination**: Handles buckets with millions of objects efficiently
+- **Cost Calculation**: 
+  - Real-time pricing from AWS Pricing API
+  - Estimated monthly costs based on current storage
+- **Rate Limiting**: Adaptive retry mode with configurable max attempts
+- **Error Handling**: Graceful handling of various AWS error scenarios
+- **Comprehensive Testing**: Unit tests and e2e tests
+
+### Future improvements/limitations
+- Real-world costs could be evaluated with Cost Explorer, which would be cheaper and more reliable than object enumeration, including parameters such as API calls costs.
+- This assumes list prices, does not account for Private Pricing Agreements
+
+### Cost and Performance Considerations
+
+**API Costs Per Operation:**
+- List buckets: ~$0.005 per 1,000 bucket operations
+- List objects: ~$0.0004 per 1,000 requests
+- Pricing API: Free tier available
+
+**Example Costs:**
+- 1M objects across 10 buckets: ~$400 in LIST operations
+- 1,000 buckets in account: ~$5 in bucket listing
+
+**Performance:**
+- Small buckets (<1K objects): Seconds
+- Large buckets (>1M objects): Minutes
+- Multiple large buckets: Can take hours
+- Uses recursive prefix listing with configurable depth for optimal performance on hierarchical structures
+
+⚠️ **WARNING**: Running against all buckets in an account with many large buckets can incur significant API costs. Always test with specific buckets first.
+
+### Environment Configuration
+
+Configure AWS credentials and settings in `.env`:
+
+```bash
+# Copy template and edit
+cp .env.template .env
+# Edit .env with your AWS credentials
+```
+
+#### Configuration Variables
+
+- `MAX_CONCURRENT_BUCKETS`: Limits concurrent bucket processing (optional, no limit by default)
+- `MAX_RECURSION_DEPTH`: Controls recursive prefix listing depth (default: 4)
+  - Higher values improve efficiency for deeply nested folder structures
+  - Lower values reduce memory usage and prevent stack overflow for extremely deep structures
+  - At max depth, switches to flat listing without prefixes
+- `S3_PREFIX_DELIMITER`: Character used as directory separator in S3 object keys (default: "/")
+  - Common alternatives: "-", "_", "|" for different naming conventions
+
+### Testing
+
+```bash
+# Install dependencies
+poetry install
+
+# Run unit tests
+poetry run pytest tests/unit/ -v --cov
+
+# Run e2e tests (requires LocalStack or AWS)
+docker compose up -d  # For LocalStack
+poetry run pytest tests/e2e/ -v
+
+# Run all tests
+poetry run pytest -v
+```
+
+### Debugging E2E Tests
+
+For debugging E2E tests, you can use Python's `debugpy` debugger by setting the `E2E_DEBUG=1` environment variable:
+
+```bash
+# Run E2E tests with debugpy debugger
+E2E_DEBUG=1 poetry run pytest tests/e2e/test_e2e.py::TestE2ECliOutput::test_cli_with_specific_bucket -s
+
+# Debug specific test case
+E2E_DEBUG=1 poetry run pytest tests/e2e/test_e2e.py::TestE2ECliOutput::test_cli_with_nonexistent_bucket -s
+```
+
+When `E2E_DEBUG=1` is set, the CLI will run under `python -m debugpy`.
+
+### Required AWS IAM Permissions
+
+For full functionality, the AWS credentials need these permissions:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:ListAllMyBuckets",
+        "s3:ListBucket",
+        "s3:GetBucketLocation"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "pricing:GetProducts"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+```
+
+Note: If a single bucket has to be listed, permissions can be narrowed down accordingly.
+
+## GitHub Actions
+
+Two workflows are included:
+
+1. **Tests**: Runs on push/PR with LocalStack
+2. **Run against real S3**: Manual workflow for testing against real AWS (requires secrets setup)
+
+## Security Tooling
+
+This repository uses GitHub Advanced Security features:
+- **CodeQL**: Automated security scanning
+- **Dependabot**: Dependency vulnerability monitoring  
+- **Secret Scanning**: Prevents credential exposure
+
+These tools demonstrate modern DevSecOps practices for secure software development.
