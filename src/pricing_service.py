@@ -15,6 +15,9 @@ import boto3
 
 from .aws_config import get_aws_config
 
+# Configure logging to only show errors by default  
+log_level = os.getenv('LOG_LEVEL', 'ERROR').upper()
+logging.basicConfig(level=getattr(logging, log_level))
 logger = logging.getLogger(__name__)
 
 # Mapping of AWS regions to AWS Pricing API location names

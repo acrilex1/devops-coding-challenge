@@ -194,6 +194,29 @@ E2E_DEBUG=1 poetry run pytest tests/e2e/test_e2e.py::TestE2ECliOutput::test_cli_
 E2E_DEBUG=1 poetry run pytest tests/e2e/test_e2e.py::TestE2ECliOutput::test_cli_with_nonexistent_bucket -s
 ```
 
+### Script de démonstration
+
+Un script de démonstration est fourni pour configurer rapidement un bucket de test avec des données hiérarchiques:
+
+```bash
+# Créer un bucket de démo avec 50 objets sur 5 couches de répertoires
+./demo.sh
+
+# Nettoyer le bucket de démo
+./demo.sh --cleanup <nom-du-bucket>
+
+# Afficher l'aide
+./demo.sh --help
+```
+
+Le script de démonstration crée un bucket avec:
+- 50 objets distribués sur 5 couches de répertoires
+- Diverses tailles de fichiers (1-10 KB chacun)
+- Structure hiérarchique: level1/sublevel2/sublevel3/sublevel4/sublevel5/
+- Fichiers au niveau racine (README.md, config.json)
+
+C'est parfait pour tester la fonctionnalité de listage récursif et différentes valeurs de `MAX_RECURSION_DEPTH`.
+
 ## Permissions AWS IAM requises
 
 Pour une fonctionnalité complète, les identifiants AWS nécessitent ces permissions:

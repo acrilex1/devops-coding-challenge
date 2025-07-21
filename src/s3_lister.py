@@ -16,7 +16,8 @@ from .pricing_service import PricingService
 from typing import AsyncContextManager
 
 # Configure logging
-logging.basicConfig(level=logging.INFO)
+log_level = os.getenv('LOG_LEVEL', 'ERROR').upper()
+logging.basicConfig(level=getattr(logging, log_level))
 logger = logging.getLogger(__name__)
 
 
@@ -66,7 +67,7 @@ class S3Lister:
             if object_count == 0:
                 return None
             
-            estimated_cost = round(estimated_cost, 4)
+            estimated_cost = round(estimated_cost, 6)
             size_gb = bucket_size / (1024 ** 3)
             
             result = {

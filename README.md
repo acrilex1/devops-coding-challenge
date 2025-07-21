@@ -199,6 +199,29 @@ E2E_DEBUG=1 poetry run pytest tests/e2e/test_e2e.py::TestE2ECliOutput::test_cli_
 
 When `E2E_DEBUG=1` is set, the CLI will run under `python -m debugpy`.
 
+### Demo Script
+
+A demo script is provided to quickly set up a test bucket with hierarchical data:
+
+```bash
+# Create demo bucket with 50 objects across 5 directory layers
+./demo.sh
+
+# Clean up demo bucket
+./demo.sh --cleanup <bucket-name>
+
+# Show help
+./demo.sh --help
+```
+
+The demo script creates a bucket with:
+- 50 objects distributed across 5 directory layers
+- Various file sizes (1-10 KB each)
+- Hierarchical structure: level1/sublevel2/sublevel3/sublevel4/sublevel5/
+- Root-level files (README.md, config.json)
+
+This is perfect for testing the recursive listing functionality and different `MAX_RECURSION_DEPTH` values.
+
 ### Required AWS IAM Permissions
 
 For full functionality, the AWS credentials need these permissions:
