@@ -13,3 +13,5 @@ dist/*
 *.xml
 *.iml
 *.log
+.env
+.venv/
